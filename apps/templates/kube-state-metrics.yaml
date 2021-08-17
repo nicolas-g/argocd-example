@@ -11,7 +11,7 @@ spec:
     namespace: monitoring-prereqs
   project: default
   source:
-    chart: prometheus-community/kube-state-metrics
+    chart: kube-state-metrics
     helm:
       values: |
         nodeSelector:
