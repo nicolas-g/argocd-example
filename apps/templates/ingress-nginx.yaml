@@ -14,7 +14,6 @@ spec:
     chart: ingress-nginx
     helm:
       values: |
-        #
         # https://github.com/kubernetes/ingress-nginx/tree/master/charts/ingress-nginx
         #
         fullnameOverride: nginx-ingress-internal
