@@ -29,14 +29,13 @@ spec:
           scope:
             namespace: "nginx-ingress"
           service:
-            labels: {}
             omitClusterIP: true
             targetPorts:
               http: http
               https: https
             annotations:
               tbd_hosting_provider_load_balancer_type_internal_annotation
-              # if hosting_provider == 'aws'
+              # if hosting_provider is aws
               service.beta.kubernetes.io/aws-load-balancer-security-groups: tbd_aws_load_balancer_security_groups
               domainName: "*.tbd_eks_dns_ext"
               service.beta.kubernetes.io/tbd_hosting_provider-load-balancer-internal-additional-resource-tags: "tbd_lb_tags"
@@ -46,15 +45,12 @@ spec:
           stats:
             enabled: false
             service:
-              annotations: {}
           metrics:
             enabled: true
-
             service:
               annotations:
                 prometheus.io/scrape: "true"
                 prometheus.io/port: "10254"
-
           # if hosting_provider is 'gcp'
           # https://github.com/kubernetes/ingress-nginx/issues/5401
           # https://kubernetes.github.io/ingress-nginx/deploy/
@@ -67,19 +63,15 @@ spec:
           # we add a firewall rule allowing it or disable admission webhook:
           # admissionWebhooks:
           #   enabled: false
-
         ## Default 404 backend
         ##
         defaultBackend:
           ## Annotations to be added to default backend pods
           ##
-          podAnnotations: {}
           replicaCount: 1
           minAvailable: 1
           service:
-            annotations: {}
             omitClusterIP: true
-
     repoURL: https://kubernetes.github.io/ingress-nginx
     targetRevision: 3.23.0
   syncPolicy:
