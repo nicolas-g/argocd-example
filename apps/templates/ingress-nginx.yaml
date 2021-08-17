@@ -14,27 +14,25 @@ spec:
     chart: ingress-nginx
     helm:
       values: |
-        # https://github.com/kubernetes/ingress-nginx/tree/master/charts/ingress-nginx
-        #
         fullnameOverride: nginx-ingress-internal
         controller:
           publishService:
             enabled: true
           ingressClass: nginx-internal
-          ## Annotations to be added to controller pods
-          ##
           replicaCount: 1
           minAvailable: 1
           scope:
-            namespace: "nginx-ingress"
+            namespace: "ingress-nginx"
           service:
             omitClusterIP: true
             targetPorts:
               http: http
               https: https
             annotations:
-              tbd_hosting_provider_load_balancer_type_internal_annotation
+              service.beta.kubernetes.io/aws-load-balancer-internal: 'true'
               # if hosting_provider is aws
+              service.beta.kubernetes.io/aws-load-balancer-security-groups: tbd_aws_load_balancer_security_groups
+              domainName: "*.tbd_eks_dns_ext"
               service.beta.kubernetes.io/tbd_hosting_provider-load-balancer-internal-additional-resource-tags: "tbd_lb_tags"
             labels:
               dns: "tbd_hosting_provider_ingress_label_dns"
