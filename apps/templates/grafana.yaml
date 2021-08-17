@@ -1,0 +1,158 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: grafana
+  project: default
+  source:
+    chart: grafana
+    helm:
+      values: |
+        ingress:
+          enabled: true
+          annotations:
+            kubernetes.io/ingress.class: nginx
+            kubernetes.io/tls-acme: "true"
+            ingress.kubernetes.io/ssl-redirect: "true"
+            cert-manager.io/cluster-issuer: letsencrypt-prod
+          path: /
+          # hosts:
+          #   - {{ grafana_hostname }}.{{ eks_dns_ext }}
+          # tls:
+          #   - secretName: {{ grafana_hostname }}-{{ env }}-{{ dc_short }}-{{ delivery }}-prod
+          #     hosts:
+          #       - '{{ grafana_hostname }}.{{ eks_dns_ext }}'
+
+        env:
+          # GF_SERVER_ROOT_URL: https://{{ grafana_hostname }}.{{ eks_dns_ext }}
+          GF_AUTH_ANONYMOUS_ENABLED: false
+          GF_USERS_ALLOW_SIGN_UP: false
+          GF_AUTH_DISABLE_LOGIN_FORM: false
+          GF_AUTH_OAUTH_AUTO_LOGIN: false
+        # {% if grafana_okta_integration_enabled is sameas true %}
+        #   GF_AUTH_GENERIC_OAUTH_NAME: Okta
+        #   GF_AUTH_GENERIC_OAUTH_ENABLED: true
+        #   GF_AUTH_GENERIC_OAUTH_SCOPES: "openid profile email groups"
+        #   GF_AUTH_GENERIC_OAUTH_CLIENT_ID: {{ GRAFANA_AUTH_GENERIC_OAUTH_CLIENT_ID }}
+        #   GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: {{ GRAFANA_GENERIC_OAUTH_CLIENT_SECRET }}
+        #   GF_AUTH_GENERIC_OAUTH_AUTH_URL: {{ okta_domain_url }}/oauth2/v1/authorize
+        #   GF_AUTH_GENERIC_OAUTH_TOKEN_URL: {{ okta_domain_url }}/oauth2/v1/token
+        #   GF_AUTH_GENERIC_OAUTH_API_URL: {{ okta_domain_url }}/oauth2/v1/userinfo
+        #   GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: {{ grafana_auth_gen_oauth_role_attribute_path }}
+        # {% endif %}
+        # {% if grafana_notifiers_enabled is sameas true and grafana_smtp_notifiers_enabled is sameas true %}
+        #   GF_SMTP_ENABLED: true
+        #   GF_SMTP_HOST: email-smtp.us-east-1.amazonaws.com:587
+        #   GF_SMTP_USER: {{ GRAFANA_SES_SMTP_USER_ACCESS_KEY_ID }}
+        #   GF_SMTP_PASSWORD: {{ GRAFANA_SES_SMTP_USER_SECRET_ACCESS_KEY }}
+        #   GF_SMTP_FROM_ADDRESS: grafana-notify@{{ eks_dns_ext }}
+        #   GF_SMTP_FROM_NAME: Grafana-Dec-{{ env }}-{{ dc_short }}-{{ delivery }}
+        # {% endif %}
+
+        grafana.ini:
+          paths:
+            data: /var/lib/grafana/data
+            logs: /var/log/grafana
+            plugins: /var/lib/grafana/plugins
+            provisioning: /etc/grafana/provisioning
+          analytics:
+            check_for_updates: true
+          log:
+            mode: console
+          grafana_net:
+            url: https://grafana.net
+
+        # {% if grafana_notifiers_enabled is sameas true %}
+        # notifiers:
+        #   notifiers.yaml:
+        #     notifiers:
+        # {% if grafana_smtp_notifiers_enabled is sameas true %}
+        #     - name: email-notifier
+        #       type: email
+        #       uid: notifier1
+        #       settings:
+        #         addresses: {{ grafana_notifiers_email_addresses }}
+        # {% endif %}
+        #     - name: slack-notifier
+        #       type: slack
+        #       uid: notifier2
+        #       settings:
+        #         url: {{ GRAFANA_SLACK_WEBHOOK }}
+        # {% if grafana_pagerduty_highUrgency_service is defined %}
+        #     - name: {{ grafana_pagerduty_highUrgency_service }}
+        #       uid: notifier3
+        #       type: pagerduty
+        #       settings:
+        #         integrationKey: {{ PD_GRAFANA_HIGHURGENCY_KEY }}
+        #         autoResolve: true
+        # {% endif %}
+        # {% if grafana_pagerduty_lowUrgency_service is defined %}
+        #     - name: {{ grafana_pagerduty_lowUrgency_service }}
+        #       type: pagerduty
+        #       uid: notifier4
+        #       settings:
+        #         integrationKey: {{ PD_GRAFANA_LOWURGENCY_KEY }}
+        #         autoResolve: true
+        # {% endif %}
+        # {% endif %}
+
+        sidecar:
+          image:
+            # tag: {{ grafana_sidecar_version }}
+          imagePullPolicy: IfNotPresent
+          resources:
+           limits:
+             cpu: 300m
+             memory: 300Mi
+           requests:
+             cpu: 100m
+             memory: 100Mi
+          dashboards:
+            enabled: true
+            # label that the configmaps with dashboards are marked with
+            label:  grafana_dashboard
+            # folder in the pod that should hold the collected dashboards (unless `defaultFolderName` is set)
+            folder: /tmp/dashboards
+            # The default folder name, it will create a subfolder under the `folder` and put dashboards in there instead
+            defaultFolderName: null
+            # If specified, the sidecar will search for dashboard config-maps inside this namespace.
+            # Otherwise the namespace in which the sidecar is running will be used.
+            # It's also possible to specify ALL to search in all namespaces
+            searchNamespace: monitoring
+            # provider configuration that lets grafana manage the dashboards
+            provider:
+              # name of the provider, should be unique
+              name: sidecarProvider
+              # orgid as configured in grafana
+              orgid: 1
+              # folder in which the dashboards should be imported in grafana
+              folder: ''
+              # type of the provider
+              type: file
+              # disableDelete to activate a import-only behaviour
+              disableDelete: false
+          datasources:
+            enabled: true
+            # label that the configmaps with datasources are marked with
+            label: grafana_datasource
+            # If specified, the sidecar will search for datasource config-maps inside this namespace.
+            # Otherwise the namespace in which the sidecar is running will be used.
+            # It's also possible to specify ALL to search in all namespaces
+            searchNamespace: monitoring
+        nodeSelector:
+            beta.kubernetes.io/os: linux
+
+    repoURL: https://grafana.github.io/helm-charts
+    targetRevision: 6.4.4
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
