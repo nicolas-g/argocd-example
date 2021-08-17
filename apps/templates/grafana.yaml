@@ -57,7 +57,7 @@ spec:
             url: https://grafana.net
         sidecar:
           image:
-            tag: 1.10.16
+            tag: 1.10.6
           imagePullPolicy: IfNotPresent
           resources:
            limits:
