@@ -11,10 +11,16 @@ spec:
     namespace: argocd
   project: default
   source:
-    path: charts/argo-cd
-    repoURL: https://github.com/nicolas-g/argocd-example.git
-    targetRevision: HEAD
+    chart: argo-cd
+    helm:
+      values: |
+        dex:
+          enabled: false
+    repoURL: https://argoproj.github.io/argo-helm
+    targetRevision: 3.12.0
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
