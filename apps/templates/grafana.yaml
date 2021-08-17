@@ -22,39 +22,27 @@ spec:
             ingress.kubernetes.io/ssl-redirect: "true"
             cert-manager.io/cluster-issuer: letsencrypt-prod
           path: /
-          # hosts:
-          #   - {{ grafana_hostname }}.{{ eks_dns_ext }}
-          # tls:
-          #   - secretName: {{ grafana_hostname }}-{{ env }}-{{ dc_short }}-{{ delivery }}-prod
-          #     hosts:
-          #       - '{{ grafana_hostname }}.{{ eks_dns_ext }}'
-
+          hosts:
+            - tbd_grafana_hostname_eks_dns_ext
+          tls:
+            - secretName: tbd_grafana_hostname_secret
+              hosts:
+                - 'tbd_grafana_hostname_eks_dns_ext'
         env:
-          # GF_SERVER_ROOT_URL: https://{{ grafana_hostname }}.{{ eks_dns_ext }}
+          GF_SERVER_ROOT_URL: https://tbd_grafana_hostname_eks_dns_ext
           GF_AUTH_ANONYMOUS_ENABLED: false
           GF_USERS_ALLOW_SIGN_UP: false
           GF_AUTH_DISABLE_LOGIN_FORM: false
           GF_AUTH_OAUTH_AUTO_LOGIN: false
-        # {% if grafana_okta_integration_enabled is sameas true %}
-        #   GF_AUTH_GENERIC_OAUTH_NAME: Okta
-        #   GF_AUTH_GENERIC_OAUTH_ENABLED: true
-        #   GF_AUTH_GENERIC_OAUTH_SCOPES: "openid profile email groups"
-        #   GF_AUTH_GENERIC_OAUTH_CLIENT_ID: {{ GRAFANA_AUTH_GENERIC_OAUTH_CLIENT_ID }}
-        #   GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: {{ GRAFANA_GENERIC_OAUTH_CLIENT_SECRET }}
-        #   GF_AUTH_GENERIC_OAUTH_AUTH_URL: {{ okta_domain_url }}/oauth2/v1/authorize
-        #   GF_AUTH_GENERIC_OAUTH_TOKEN_URL: {{ okta_domain_url }}/oauth2/v1/token
-        #   GF_AUTH_GENERIC_OAUTH_API_URL: {{ okta_domain_url }}/oauth2/v1/userinfo
-        #   GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: {{ grafana_auth_gen_oauth_role_attribute_path }}
-        # {% endif %}
-        # {% if grafana_notifiers_enabled is sameas true and grafana_smtp_notifiers_enabled is sameas true %}
-        #   GF_SMTP_ENABLED: true
-        #   GF_SMTP_HOST: email-smtp.us-east-1.amazonaws.com:587
-        #   GF_SMTP_USER: {{ GRAFANA_SES_SMTP_USER_ACCESS_KEY_ID }}
-        #   GF_SMTP_PASSWORD: {{ GRAFANA_SES_SMTP_USER_SECRET_ACCESS_KEY }}
-        #   GF_SMTP_FROM_ADDRESS: grafana-notify@{{ eks_dns_ext }}
-        #   GF_SMTP_FROM_NAME: Grafana-Dec-{{ env }}-{{ dc_short }}-{{ delivery }}
-        # {% endif %}
-
+          GF_AUTH_GENERIC_OAUTH_NAME: Okta
+          GF_AUTH_GENERIC_OAUTH_ENABLED: true
+          GF_AUTH_GENERIC_OAUTH_SCOPES: "openid profile email groups"
+          GF_AUTH_GENERIC_OAUTH_CLIENT_ID: tbd_GRAFANA_AUTH_GENERIC_OAUTH_CLIENT_ID
+          GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: tbd_GRAFANA_GENERIC_OAUTH_CLIENT_SECRET
+          GF_AUTH_GENERIC_OAUTH_AUTH_URL: tbd_okta_domain_url_/oauth2/v1/authorize
+          GF_AUTH_GENERIC_OAUTH_TOKEN_URL: tbd_okta_domain_url_/oauth2/v1/token
+          GF_AUTH_GENERIC_OAUTH_API_URL: tbd_okta_domain_url_/oauth2/v1/userinfo
+          GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: {{ grafana_auth_gen_oauth_role_attribute_path }}
         grafana.ini:
           paths:
             data: /var/lib/grafana/data
@@ -67,44 +55,9 @@ spec:
             mode: console
           grafana_net:
             url: https://grafana.net
-
-        # {% if grafana_notifiers_enabled is sameas true %}
-        # notifiers:
-        #   notifiers.yaml:
-        #     notifiers:
-        # {% if grafana_smtp_notifiers_enabled is sameas true %}
-        #     - name: email-notifier
-        #       type: email
-        #       uid: notifier1
-        #       settings:
-        #         addresses: {{ grafana_notifiers_email_addresses }}
-        # {% endif %}
-        #     - name: slack-notifier
-        #       type: slack
-        #       uid: notifier2
-        #       settings:
-        #         url: {{ GRAFANA_SLACK_WEBHOOK }}
-        # {% if grafana_pagerduty_highUrgency_service is defined %}
-        #     - name: {{ grafana_pagerduty_highUrgency_service }}
-        #       uid: notifier3
-        #       type: pagerduty
-        #       settings:
-        #         integrationKey: {{ PD_GRAFANA_HIGHURGENCY_KEY }}
-        #         autoResolve: true
-        # {% endif %}
-        # {% if grafana_pagerduty_lowUrgency_service is defined %}
-        #     - name: {{ grafana_pagerduty_lowUrgency_service }}
-        #       type: pagerduty
-        #       uid: notifier4
-        #       settings:
-        #         integrationKey: {{ PD_GRAFANA_LOWURGENCY_KEY }}
-        #         autoResolve: true
-        # {% endif %}
-        # {% endif %}
-
         sidecar:
           image:
-            # tag: {{ grafana_sidecar_version }}
+            tag: 1.10.16
           imagePullPolicy: IfNotPresent
           resources:
            limits:
