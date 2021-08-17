@@ -1,0 +1,90 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress-nginx
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ingress-nginx
+  project: default
+  source:
+    chart: ingress-nginx
+    helm:
+      values: |
+        #
+        # https://github.com/kubernetes/ingress-nginx/tree/master/charts/ingress-nginx
+        #
+        fullnameOverride: nginx-ingress-internal
+        controller:
+          publishService:
+            enabled: true
+          ingressClass: nginx-internal
+          ## Annotations to be added to controller pods
+          ##
+          replicaCount: 1
+          minAvailable: 1
+          scope:
+            namespace: "nginx-ingress"
+          service:
+            labels: {}
+            omitClusterIP: true
+            targetPorts:
+              http: http
+              https: https
+            annotations:
+              tbd_hosting_provider_load_balancer_type_internal_annotation
+              # if hosting_provider == 'aws'
+              service.beta.kubernetes.io/aws-load-balancer-security-groups: tbd_aws_load_balancer_security_groups
+              domainName: "*.tbd_eks_dns_ext"
+              service.beta.kubernetes.io/tbd_hosting_provider-load-balancer-internal-additional-resource-tags: "tbd_lb_tags"
+            labels:
+              dns: "tbd_hosting_provider_ingress_label_dns"
+              nginx-ingress-type: internal
+          stats:
+            enabled: false
+            service:
+              annotations: {}
+          metrics:
+            enabled: true
+
+            service:
+              annotations:
+                prometheus.io/scrape: "true"
+                prometheus.io/port: "10254"
+
+          # if hosting_provider is 'gcp'
+          # https://github.com/kubernetes/ingress-nginx/issues/5401
+          # https://kubernetes.github.io/ingress-nginx/deploy/
+          # nginx requires a validating webhook endpoint. This webhook registers itself
+          # with the Kubernetes API to validate all ingress resource specifications before they
+          # are used to create or update an ingress.
+          # The admission webhook requires connectivity between Kubernetes API server and the ingress controller
+          # This endpoint listens on port 8443 and must be accessible from the Kubernetes API server.
+          # Since the default firewall rules do not allow access from the API server to the nodes on port 8443,
+          # we add a firewall rule allowing it or disable admission webhook:
+          # admissionWebhooks:
+          #   enabled: false
+
+        ## Default 404 backend
+        ##
+        defaultBackend:
+          ## Annotations to be added to default backend pods
+          ##
+          podAnnotations: {}
+          replicaCount: 1
+          minAvailable: 1
+          service:
+            annotations: {}
+            omitClusterIP: true
+
+    repoURL: https://kubernetes.github.io/ingress-nginx
+    targetRevision: 3.23.0
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
