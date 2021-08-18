@@ -14,57 +14,35 @@ spec:
     chart: ingress-nginx
     helm:
       values: |
-        fullnameOverride: nginx-ingress-internal
+        # https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml
+        fullnameOverride: ingress-nginx-internal
         controller:
-          publishService:
-            enabled: true
+          config:
+            use-proxy-protocol: "true"
           ingressClass: nginx-internal
-          replicaCount: 1
-          minAvailable: 1
-          scope:
-            namespace: "ingress-nginx"
-          service:
-            omitClusterIP: true
-            targetPorts:
-              http: http
-              https: https
-            annotations:
-              service.beta.kubernetes.io/aws-load-balancer-internal: 'true'
-              # if hosting_provider is aws
-              service.beta.kubernetes.io/aws-load-balancer-security-groups: tbd_aws_load_balancer_security_groups
-              domainName: "*.tbd_eks_dns_ext"
-              service.beta.kubernetes.io/tbd_hosting_provider-load-balancer-internal-additional-resource-tags: "tbd_lb_tags"
-            labels:
-              dns: "tbd_hosting_provider_ingress_label_dns"
-              nginx-ingress-type: internal
-          stats:
-            enabled: false
-            service:
           metrics:
             enabled: true
             service:
               annotations:
-                prometheus.io/scrape: "true"
                 prometheus.io/port: "10254"
-          # if hosting_provider is 'gcp'
-          # https://github.com/kubernetes/ingress-nginx/issues/5401
-          # https://kubernetes.github.io/ingress-nginx/deploy/
-          # nginx requires a validating webhook endpoint. This webhook registers itself
-          # with the Kubernetes API to validate all ingress resource specifications before they
-          # are used to create or update an ingress.
-          # The admission webhook requires connectivity between Kubernetes API server and the ingress controller
-          # This endpoint listens on port 8443 and must be accessible from the Kubernetes API server.
-          # Since the default firewall rules do not allow access from the API server to the nodes on port 8443,
-          # we add a firewall rule allowing it or disable admission webhook:
-          # admissionWebhooks:
-          #   enabled: false
-        ## Default 404 backend
-        ##
+                prometheus.io/scrape: "true"
+          scope:
+            namespace: ingress-nginx
+          service:
+            annotations:
+              domainName: '*.main.use1.k8s.mgnt-xspdev.in' #TBA
+              service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+              service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
+              service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+              service.beta.kubernetes.io/aws-load-balancer-internal-additional-resource-tags: delivery=xspdev,Name=nginx-ingress-main-use1-xspdev
+              service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: '*'
+              service.beta.kubernetes.io/aws-load-balancer-security-groups: sg-0d6df32f2af3f2ca0 #TBA
+            externalTrafficPolicy: Local
+            labels:
+              dns: route53 #TBA
+              nginx-ingress-type: internal
+            omitClusterIP: true
         defaultBackend:
-          ## Annotations to be added to default backend pods
-          ##
-          replicaCount: 1
-          minAvailable: 1
           service:
             omitClusterIP: true
     repoURL: https://kubernetes.github.io/ingress-nginx
