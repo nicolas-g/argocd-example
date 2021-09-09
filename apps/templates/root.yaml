@@ -11,8 +11,8 @@ spec:
     namespace: default
   project: default
   source:
-    path: apps/
-    repoURL: https://github.com/nicolas-g/argocd-example.git
+    path: apps/ #<-- CHANGE ME !!!
+    repoURL: https://github.com/nicolas-g/argocd-samples.git
     targetRevision: HEAD
   syncPolicy:
     automated:

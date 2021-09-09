@@ -12,7 +12,7 @@ spec:
   project: default
   source:
     path: xspdev-main-use1/
-    repoURL: https://github.com/nicolas-g/argocd-example.git
+    repoURL: https://github.com/nicolas-g/argocd-samples.git
     targetRevision: HEAD
   syncPolicy:
     automated:
