@@ -36,13 +36,13 @@ spec:
             config:
              region: eu-west-1
              s3ForcePathStyle: true
-             s3Url: velero_backups_bucket # CHANGE ME !
+             s3Url: velero-backups-bucket # CHANGE ME !
 
           # Parameters for the `default` VolumeSnapshotLocation. See
           # https://velero.io/docs/v1.6/api-types/volumesnapshotlocation/
           volumeSnapshotLocation:
             # name is the name of the volume snapshot location where snapshots are being taken. Required.
-            name:  velero_snapshot_location # CHANGE ME !
+            name:  velero-snapshot-location # CHANGE ME !
 
         credentials:
           # Whether a secret should be used as the source of IAM account
