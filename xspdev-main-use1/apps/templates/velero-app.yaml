@@ -38,17 +38,17 @@ spec:
              s3ForcePathStyle: true
              s3Url: velero_backups_bucket # CHANGE ME !
 
-        #   # Parameters for the `default` VolumeSnapshotLocation. See
-        #   # https://velero.io/docs/v1.6/api-types/volumesnapshotlocation/
-        #   volumeSnapshotLocation:
-        #     # name is the name of the volume snapshot location where snapshots are being taken. Required.
-        #     name  velero_snapshot_location # CHANGE ME !
-        #
-        # credentials:
-        #   # Whether a secret should be used as the source of IAM account
-        #   # credentials. Set to false if, for example, using kube2iam or
-        #   # kiam to provide IAM credentials for the Velero pod.
-        #   useSecret: false
+          # Parameters for the `default` VolumeSnapshotLocation. See
+          # https://velero.io/docs/v1.6/api-types/volumesnapshotlocation/
+          volumeSnapshotLocation:
+            # name is the name of the volume snapshot location where snapshots are being taken. Required.
+            name:  velero_snapshot_location # CHANGE ME !
+
+        credentials:
+          # Whether a secret should be used as the source of IAM account
+          # credentials. Set to false if, for example, using kube2iam or
+          # kiam to provide IAM credentials for the Velero pod.
+          useSecret: false
 
     repoURL: https://vmware-tanzu.github.io/helm-charts
     targetRevision: 2.23.6
