@@ -10,6 +10,9 @@ spec:
   containers:
   - image: busybox
     name: busybox
+    args:
+    - sleep
+    - "1000"
     resources: {}
   dnsPolicy: ClusterFirst
   restartPolicy: Always
