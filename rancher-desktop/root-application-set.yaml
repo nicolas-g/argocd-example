@@ -1,0 +1,35 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cluster-addons
+  namespace: argocd
+spec:
+  # To prevent workloads to get deleted by Applications
+  # syncPolicy:
+  #   preserveResourcesOnDeletion: true
+  generators:
+    - git:
+        repoURL: git@github.com:nicolas-g/argocd-samples.git
+        revision: master
+        files:
+        - path: "rancher-desktop/apps/**/config.json"
+
+  template:
+    metadata:
+      name: '{{app.name}}'
+    spec:
+      project: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+      source:
+        repoURL: git@github.com:nicolas-g/argocd-samples.git
+        targetRevision: master
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{app.namespace}}'
