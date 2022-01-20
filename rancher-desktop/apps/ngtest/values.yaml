@@ -1,5 +1,0 @@
-
-
-app:
-  name: "monitoring-prereqs"
-  namespace: "monitoring"
