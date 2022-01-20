@@ -1,11 +1,4 @@
 
-
-app:
-  name: "monitoring-prereqs"
-  namespace: "monitoring"
-
-
-# helm
 kube-state-metrics:
   nodeSelector:
     beta.kubernetes.io/os: linux
