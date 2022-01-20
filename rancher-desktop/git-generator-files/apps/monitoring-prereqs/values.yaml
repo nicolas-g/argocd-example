@@ -1,0 +1,15 @@
+
+kube-state-metrics:
+  nodeSelector:
+    beta.kubernetes.io/os: linux
+
+metrics-server:
+  nodeSelector:
+      beta.kubernetes.io/os: linux
+  ## API service parameters
+  ##
+  apiService:
+    ## Specifies whether the v1beta1.metrics.k8s.io API service should be created
+    ## This should not be necessary in k8s version >= 1.8, but depends on vendors and cloud providers.
+    ##
+    create: true
