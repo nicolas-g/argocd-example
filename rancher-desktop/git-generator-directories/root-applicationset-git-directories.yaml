@@ -1,0 +1,44 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cluster-addons
+  namespace: argocd
+spec:
+  # To prevent workloads to get deleted by Applications
+  # syncPolicy:
+  #   preserveResourcesOnDeletion: true
+  generators:
+    - git:
+        # Use the `git@` version if it's a private repo and you are using a deploy ssh key
+        #repoURL: git@github.com:nicolas-g/argocd-samples.git
+        repoURL: https://github.com/nicolas-g/argocd-samples.git
+        revision: master
+        directories:
+        #- path: "rancher-desktop/apps/monitoring-prereqs/*"
+        - path: "rancher-desktop/git-generator-directories/apps/*"
+
+  template:
+    metadata:
+#      name: '{{app.name}}'
+      name: '{{path.basename}}'
+    spec:
+      project: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+      source:
+        # Use the `git@` version if it's a private repo and you are using a deploy ssh key
+        #repoURL: git@github.com:nicolas-g/argocd-samples.git
+        repoURL: https://github.com/nicolas-g/argocd-samples.git
+        targetRevision: master
+        # path: '{{path}}'
+        #path: "rancher-desktop/apps/**/"
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{path.basename}}'
+        #namespace: '{{app.namespace}}'
