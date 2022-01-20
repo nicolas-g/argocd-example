@@ -15,12 +15,9 @@ spec:
         repoURL: https://github.com/nicolas-g/argocd-samples.git
         revision: master
         directories:
-        #- path: "rancher-desktop/apps/monitoring-prereqs/*"
         - path: "rancher-desktop/git-generator-directories/apps/*"
-
   template:
     metadata:
-#      name: '{{app.name}}'
       name: '{{path.basename}}'
     spec:
       project: default
@@ -35,10 +32,7 @@ spec:
         #repoURL: git@github.com:nicolas-g/argocd-samples.git
         repoURL: https://github.com/nicolas-g/argocd-samples.git
         targetRevision: master
-        # path: '{{path}}'
-        #path: "rancher-desktop/apps/**/"
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{path.basename}}'
-        #namespace: '{{app.namespace}}'
