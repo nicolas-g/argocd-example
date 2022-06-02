@@ -23,8 +23,8 @@ spec:
           ## This should not be necessary in k8s version >= 1.8, but depends on vendors and cloud providers.
           ##
           create: true
-    repoURL: https://charts.bitnami.com/bitnami
-    targetRevision: 5.9.3
+    repoURL: https://kubernetes-sigs.github.io/metrics-server
+    targetRevision: 3.8.2
   syncPolicy:
     automated:
       prune: true
