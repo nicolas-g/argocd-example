@@ -12,7 +12,7 @@ spec:
   project: default
   source:
     path: rancher-desktop/
-    repoURL: https://github.com/nicolas-g/argocd-example.git
+    repoURL: https://github.com/nicolas-g/argocd-samples.git
     targetRevision: HEAD
   syncPolicy:
     automated:
